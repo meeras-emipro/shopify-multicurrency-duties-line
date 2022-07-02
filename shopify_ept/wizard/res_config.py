@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
-
-from odoo import models, fields, api, _
+import os
+import zipfile
+from odoo import models, fields, api, _, SUPERUSER_ID
 from odoo.exceptions import UserError
 from .. import shopify
 
@@ -283,10 +284,9 @@ class ResConfigSettings(models.TransientModel):
     shopify_analytic_tag_ids = fields.Many2many('account.analytic.tag', 'shopify_res_config_analytic_account_tag_rel',
                                                 string='Shopify Analytic Tags',
                                                 domain="['|', ('company_id', '=', False), ('company_id', '=', shopify_company_id)]")
-    shopify_lang_id = fields.Many2one('res.lang', string='Shopify Instance Language',
-                                      help="Select language for Shopify customer.")
-    # presentment currency
-    order_visible_currency = fields.Boolean(string="Import order in customer visible currency?")
+
+    group_show_net_profit_report = fields.Boolean(string='Net Profit Report',
+                                                  implied_group='shopify_ept.group_visible_net_profit_report')
 
     @api.onchange("shopify_instance_id")
     def onchange_shopify_instance_id(self):
@@ -330,8 +330,6 @@ class ResConfigSettings(models.TransientModel):
             self.shopify_import_order_after_date = instance.import_order_after_date or False
             self.shopify_analytic_account_id = instance.shopify_analytic_account_id.id or False
             self.shopify_analytic_tag_ids = instance.shopify_analytic_tag_ids.ids
-            self.shopify_lang_id = instance.shopify_lang_id and instance.shopify_lang_id.id or False
-            self.order_visible_currency = instance.order_visible_currency or False
 
     def execute(self):
         """This method used to set value in an instance of configuration.
@@ -380,8 +378,6 @@ class ResConfigSettings(models.TransientModel):
             values["shopify_analytic_account_id"] = self.shopify_analytic_account_id and \
                                                     self.shopify_analytic_account_id.id or False
             values["shopify_analytic_tag_ids"] = [(6, 0, self.shopify_analytic_tag_ids.ids)]
-            values['shopify_lang_id'] = self.shopify_lang_id and self.shopify_lang_id.id or False
-            values['order_visible_currency'] = self.order_visible_currency or False
 
             product_webhook_changed = customer_webhook_changed = order_webhook_changed = False
             if instance.create_shopify_products_webhook != self.create_shopify_products_webhook:
@@ -399,6 +395,29 @@ class ResConfigSettings(models.TransientModel):
             if order_webhook_changed:
                 instance.configure_shopify_order_webhook()
 
+        return res
+
+    def install_net_profit_report_module(self):
+        """Install net profit report module if enable configuration.
+            @author: Meera Sidapara @Emipro Technologies Pvt. Ltd on date 01/07/2022.
+        """
+        path = os.path.realpath(
+            os.path.join(os.path.dirname(__file__), '../data/shopify_net_profit_report_ept.zip'))
+        extract_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '../../'))
+        if not os.path.exists(extract_path + '/shopify_net_profit_report_ept'):
+            with zipfile.ZipFile(path, 'r') as zip_ref:
+                zip_ref.extractall(extract_path)
+        self.env['ir.module.module'].update_list()
+        module = self.env['ir.module.module'].search([
+            ('name', '=', 'shopify_net_profit_report_ept'),
+            ('state', '=', 'uninstalled')
+        ])
+        if module:
+            module.with_user(SUPERUSER_ID).button_immediate_install()
+        action = self.env.ref('shopify_ept.action_shopify_config', False)
+        res = action and action.read()[0] or {}
+        res['context'] = {'default_shopify_instance_id': self.shopify_instance_id.id,
+                          'module': 'shopify_ept'}
         return res
 
     @api.model
@@ -475,8 +494,7 @@ class ResConfigSettings(models.TransientModel):
                                          self.shopify_credit_tax_account_id.id or False,
                 'import_order_after_date': self.shopify_import_order_after_date,
                 'shopify_analytic_account_id': self.shopify_analytic_account_id.id or False,
-                'shopify_analytic_tag_ids': self.shopify_analytic_tag_ids.ids or False,
-                'shopify_lang_id': self.shopify_lang_id and self.shopify_lang_id.id or False,
+                'shopify_analytic_tag_ids': self.shopify_analytic_tag_ids.ids or False
             }
 
             instance.write(basic_configuration_dict)

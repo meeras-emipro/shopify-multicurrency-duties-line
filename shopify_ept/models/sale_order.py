@@ -200,11 +200,9 @@ class SaleOrder(models.Model):
         order_number = order_response.get("order_number")
         for line in lines:
             is_custom_line, is_gift_card_line, product = self.search_custom_tip_gift_card_product(line, instance)
-            price = line.get("price")
-            if instance.order_visible_currency:
-                price = self.get_price_based_on_customer_visible_currency(line.get("price_set"), order_response, price)
+
             order_line = self.shopify_create_sale_order_line(line, product, line.get("quantity"),
-                                                             product.name, price,
+                                                             product.name, line.get("price"),
                                                              order_response)
             if is_gift_card_line:
                 line_vals = {'is_gift_card_line': True}
@@ -214,9 +212,6 @@ class SaleOrder(models.Model):
 
             if is_custom_line:
                 order_line.write({'name': line.get('name')})
-
-            if line.get('duties'):
-                self.create_shopify_duties_lines(line.get('duties'), order_response, instance)
 
             if float(total_discount) > 0.0:
                 discount_amount = 0.0
@@ -231,44 +226,6 @@ class SaleOrder(models.Model):
                                                         is_discount=True)
                     _logger.info("Created discount line for Odoo order(%s) and Shopify order is (%s)", self.name,
                                  order_number)
-
-    def get_price_based_on_customer_visible_currency(self, price_set, order_response, price):
-        """
-        This method is used to set price based on customer visible currency.
-        @author: Meera Sidapara on Date 16-June-2022.
-        Task: 193010 - Shopify Multi currency changes
-        """
-        if float(price_set['shop_money']['amount']) > 0.0 and price_set['shop_money'][
-            'currency_code'] == order_response.get('presentment_currency'):
-            price = price_set['shop_money']['amount']
-        elif float(price_set['presentment_money']['amount']) > 0.0 and price_set['presentment_money'][
-            'currency_code'] == order_response.get('presentment_currency'):
-            price = price_set['presentment_money']['amount']
-        return price
-
-    def create_shopify_duties_lines(self, duties_line, order_response, instance):
-        """
-        Creates duties lines for shopify orders.
-        @author: Meera Sidapara on Date 17-June-2022.
-        """
-        order_number = order_response.get("order_number")
-        product = instance.duties_product_id if instance.duties_product_id else False
-        # add duties
-        for duties in duties_line:
-            duties_amount = 0.0
-            if instance.order_visible_currency:
-                duties_amount = self.get_price_based_on_customer_visible_currency(duties.get("price_set"),
-                                                                                  order_response,
-                                                                                  duties_amount)
-
-            if float(duties_amount) > 0.0:
-                _logger.info("Creating duties line for Odoo order(%s) and Shopify order is (%s)", self.name,
-                             order_number)
-                self.shopify_create_sale_order_line(duties, instance.duties_product_id, 1,
-                                                    product.name, float(duties_amount),
-                                                    order_response, is_duties=True)
-                _logger.info("Created duties line for Odoo order(%s) and Shopify order is (%s)", self.name,
-                             order_number)
 
     def search_custom_tip_gift_card_product(self, line, instance):
         """
@@ -313,14 +270,9 @@ class SaleOrder(models.Model):
             # Changes suggested by dipesh sir.
             if shipping_product:
                 if float(line.get("price")) > 0.0:
-                    shipping_price = line.get("price")
-                    if instance.order_visible_currency:
-                        shipping_price = self.get_price_based_on_customer_visible_currency(line.get("price_set"),
-                                                                                           order_response,
-                                                                                           shipping_price)
                     order_line = self.shopify_create_sale_order_line(line, shipping_product, 1,
                                                                      shipping_product.name or line.get("title"),
-                                                                     shipping_price,
+                                                                     line.get("price"),
                                                                      order_response, is_shipping=True)
                 discount_amount = 0.0
                 for discount_allocation in line.get("discount_allocations"):
@@ -682,7 +634,6 @@ class SaleOrder(models.Model):
         """
         date_order = self.convert_order_date(order_response)
         pricelist_id = self.shopify_set_pricelist(order_response=order_response, instance=instance)
-
         ordervals = {
             "company_id": instance.shopify_company_id.id if instance.shopify_company_id else False,
             "partner_id": partner.ids[0],
@@ -705,13 +656,6 @@ class SaleOrder(models.Model):
                 name = order_response.get("name")
             ordervals.update({"name": name})
         return ordervals
-
-    def create_or_search_sale_tag(self, tag):
-        crm_tag_obj = self.env['crm.tag']
-        exists_tag = crm_tag_obj.search([('name', '=ilike', tag)], limit=1)
-        if not exists_tag:
-            exists_tag = crm_tag_obj.create({'name': tag})
-        return exists_tag.id
 
     def convert_order_date(self, order_response):
         """ This method is used to convert the order date in UTC and formate("%Y-%m-%d %H:%M:%S").
@@ -736,13 +680,8 @@ class SaleOrder(models.Model):
             :param payment_gateway: Record of payment gateway.
             @author: Haresh Mori @Emipro Technologies Pvt. Ltd on date 19 October 2020 .
             Task_id: 167537
-            @change : pass tag_ids on vals by Nilam Kubavat for task id : 190111 at 19/05/2022
         """
         shopify_source_id = self.find_or_create_shopify_source(order_response.get('source_name'))
-        tags = order_response.get("tags").split(",") if order_response.get("tags") != '' else order_response.get("tags")
-        tag_ids = []
-        for tag in tags:
-            tag_ids.append(self.create_or_search_sale_tag(tag))
         order_vals = {
             "checkout_id": order_response.get("checkout_id"),
             "note": order_response.get("note"),
@@ -755,8 +694,7 @@ class SaleOrder(models.Model):
             "auto_workflow_process_id": workflow and workflow.id,
             "client_order_ref": order_response.get("name"),
             "analytic_account_id": instance.shopify_analytic_account_id.id if instance.shopify_analytic_account_id else False,
-            "source_id": shopify_source_id.id,
-            "tag_ids": tag_ids
+            "source_id": shopify_source_id.id
         }
         return order_vals
 
@@ -781,9 +719,7 @@ class SaleOrder(models.Model):
         """
         currency_obj = self.env["res.currency"]
         pricelist_obj = self.env["product.pricelist"]
-        order_currency = order_response.get(
-            "presentment_currency") if instance.order_visible_currency else order_response.get(
-            "currency") or False
+        order_currency = order_response.get("currency") or False
         if order_currency:
             currency = currency_obj.search([("name", "=", order_currency)])
             if not currency:
@@ -831,7 +767,7 @@ class SaleOrder(models.Model):
 
     def shopify_create_sale_order_line(self, line, product, quantity, product_name, price,
                                        order_response, is_shipping=False, previous_line=False,
-                                       is_discount=False, is_duties=False):
+                                       is_discount=False):
         """
         This method used to create a sale order line.
         @param : self, line, product, quantity,product_name, order_id,price, is_shipping=False
@@ -844,16 +780,10 @@ class SaleOrder(models.Model):
         line_vals = self.prepare_vals_for_sale_order_line(product, product_name, price, quantity)
         order_line_vals = sale_order_line_obj.create_sale_order_line_ept(line_vals)
         order_line_vals = self.shopify_set_tax_in_sale_order_line(instance, line, order_response, is_shipping,
-                                                                  is_discount, previous_line, order_line_vals,
-                                                                  is_duties)
+                                                                  is_discount, previous_line, order_line_vals)
         if is_discount:
             order_line_vals["name"] = "Discount for " + str(product_name)
             if instance.apply_tax_in_order == "odoo_tax" and is_discount:
-                order_line_vals["tax_id"] = previous_line.tax_id
-
-        if is_duties:
-            order_line_vals["name"] = "Duties for " + str(product_name)
-            if instance.apply_tax_in_order == "odoo_tax" and is_duties:
                 order_line_vals["tax_id"] = previous_line.tax_id
 
         shopify_analytic_tag_ids = instance.shopify_analytic_tag_ids.ids
@@ -883,14 +813,13 @@ class SaleOrder(models.Model):
         return line_vals
 
     def shopify_set_tax_in_sale_order_line(self, instance, line, order_response, is_shipping, is_discount,
-                                           previous_line, order_line_vals, is_duties):
+                                           previous_line, order_line_vals):
         """ This method is used to set tax in the sale order line base on tax configuration in the
             Shopify setting in Odoo.
             :param line: Response of sale order line.
             :param order_response: Response of order.
             :param is_shipping: It used to identify that it a shipping line.
             :param is_discount: It used to identify that it a discount line.
-            :param is_duties: It used to identify that it a duties line.
             :param previous_line: Record of the previously created sale order line.
             :param order_line_vals: Prepared sale order line vals as the previous method.
             @author: Haresh Mori @Emipro Technologies Pvt. Ltd on date 20 October 2020 .
@@ -908,12 +837,6 @@ class SaleOrder(models.Model):
                                                           taxes_included)
                 if is_shipping:
                     # In the Shopify store there is configuration regarding tax is applicable on shipping or not,
-                    # if applicable then this use.
-                    tax_ids = self.shopify_get_tax_id_ept(instance,
-                                                          line.get("tax_lines"),
-                                                          taxes_included)
-                if is_duties:
-                    # In the Shopify store there is configuration regarding tax is applicable on line duties or not,
                     # if applicable then this use.
                     tax_ids = self.shopify_get_tax_id_ept(instance,
                                                           line.get("tax_lines"),
@@ -1865,20 +1788,6 @@ class SaleOrder(models.Model):
                                      "access right of this user :%s  ", user_id.name)
                         _logger.info(error)
         return True
-
-    def action_order_ref_redirect(self):
-        """
-        This method is used to redirect Woocommerce order in WooCommerce Store.
-        @author: Meera Sidapara on Date 31-May-2022.
-        @Task: 190111 - Shopify APP features
-        """
-        self.ensure_one()
-        url = '%s/admin/orders/%s' % (self.shopify_instance_id.shopify_host, self.shopify_order_id)
-        return {
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'new',
-        }
 
 
 class SaleOrderLine(models.Model):

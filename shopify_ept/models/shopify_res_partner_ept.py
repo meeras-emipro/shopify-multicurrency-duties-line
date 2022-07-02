@@ -16,7 +16,6 @@ class ShopifyResPartnerEpt(models.Model):
         """
         This method is used to create a contact type customer.
         @author: Maulik Barad on Date 09-Sep-2020.
-        @change : pass category_id as tag on vals by Nilam Kubavat for task id : 190111 at 19/05/2022
         """
         partner_obj = self.env["res.partner"]
         common_log_line_obj = self.env["common.log.lines.ept"]
@@ -42,10 +41,6 @@ class ShopifyResPartnerEpt(models.Model):
             name = email
 
         partner = self.search_shopify_partner(shopify_customer_id, shopify_instance_id)
-        tags = vals.get("tags").split(",") if vals.get("tags") != '' else vals.get("tags")
-        tag_ids = []
-        for tag in tags:
-            tag_ids.append(partner_obj.create_or_search_tag(tag))
 
         if partner:
             return partner
@@ -56,19 +51,19 @@ class ShopifyResPartnerEpt(models.Model):
             partner = partner_obj.search_partner_by_email(email)
 
             if partner:
-                partner.write({"is_shopify_customer": True, "category_id": tag_ids})
+                partner.write({"is_shopify_customer": True})
                 shopify_partner_values.update({"partner_id": partner.id})
                 self.create(shopify_partner_values)
                 return partner
 
-        partner_vals = self.shopify_prepare_partner_vals(vals.get("default_address", {}), instance)
+        partner_vals = self.shopify_prepare_partner_vals(vals.get("default_address", {}))
+
         partner_vals.update({
             "name": name,
             "email": email,
             "customer_rank": 1,
             "is_shopify_customer": True,
             "type": "contact",
-            "category_id": tag_ids
         })
         partner = partner_obj.create(partner_vals)
 
@@ -133,14 +128,13 @@ class ShopifyResPartnerEpt(models.Model):
         company_name and partner.write({"company_name": company_name})
         return partner
 
-    def shopify_prepare_partner_vals(self, vals, instance=False):
+    def shopify_prepare_partner_vals(self, vals):
         """
         This method used to prepare a partner vals.
         @param : self,vals
         @return: partner_vals
         @author: Haresh Mori @Emipro Technologies Pvt. Ltd on date 29 August 2020 .
         Task_id: 165956
-        @change : pass lang on vals by Nilam Kubavat for task id : 190111 at 19/05/2022
         """
         partner_obj = self.env["res.partner"]
 
@@ -166,8 +160,7 @@ class ShopifyResPartnerEpt(models.Model):
             "zip": zipcode,
             "state_id": state and state.id or False,
             "country_id": country and country.id or False,
-            "is_company": False,
-            'lang': instance.shopify_lang_id.code if instance != False else None,
+            "is_company": False
         }
         update_partner_vals = partner_obj.remove_special_chars_from_partner_vals(partner_vals)
         return update_partner_vals

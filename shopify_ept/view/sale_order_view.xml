@@ -76,14 +76,7 @@
                           attrs="{'invisible':[('shopify_instance_id','=',False)]}">
                         <group>
                             <group>
-                                <label for="shopify_order_id"/>
-                                <div name="shopify_order_link">
-                                    <field name="shopify_order_id" readonly="True"/>
-                                    <button name="action_order_ref_redirect"
-                                            type="object"
-                                            icon="fa-external-link ">
-                                    </button>
-                                </div>
+                                <field name="shopify_order_id" readonly="True"/>
                                 <field name="shopify_order_number" readonly="True"/>
                                 <field name="shopify_payment_gateway_id" readonly="True"/>
                                 <field name="shopify_instance_id" readonly="True"

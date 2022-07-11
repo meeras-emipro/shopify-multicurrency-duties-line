@@ -10,7 +10,12 @@
                 <page string="WooCommerce Details" attrs="{'invisible':[('woo_instance_id','=',False)]}">
                     <group>
                         <group>
-                            <field name="woo_order_id" readonly="1" string="WooCommerce Order Reference"/>
+                            <label for="woo_order_id"/>
+                            <div name="woo_order_link" class="o_row">
+                                <field name="woo_order_id" readonly="1" string="WooCommerce Order Reference"/>
+                                <button name="get_order_link" type="object"
+                                        class="oe_stat_button" icon="fa-external-link"/>
+                            </div>
                             <field name="woo_order_number" readonly="1"/>
                             <field name="woo_instance_id" readonly="1" string="WooCommerce Instance"/>
                             <field name="woo_status" readonly="1" string="WooCommerce Status"/>

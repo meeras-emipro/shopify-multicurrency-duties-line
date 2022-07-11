@@ -13,6 +13,7 @@ from io import StringIO, BytesIO
 
 from odoo import api, models, fields, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.addons.website.tools import get_video_embed_code
 from odoo.tools.misc import split_every
 
 _logger = logging.getLogger("WooCommerce")
@@ -72,6 +73,14 @@ class WooProcessImportExport(models.TransientModel):
                                                                 "automatically while importing stock.")
     products_after_date = fields.Datetime("From Date")
     products_before_date = fields.Datetime("To Date")
+    woo_video_url = fields.Char('Video URL',
+                                help='URL of a video for showcasing by operations.')
+    woo_video_embed_code = fields.Html(compute="_compute_woo_video_embed_code", sanitize=False)
+
+    @api.depends('woo_video_url')
+    def _compute_woo_video_embed_code(self):
+        for image in self:
+            image.woo_video_embed_code = get_video_embed_code(image.woo_video_url)
 
     @api.constrains('orders_after_date', 'orders_before_date', 'products_after_date', 'products_before_date')
     def _check_order_after_before_date(self):
@@ -100,6 +109,9 @@ class WooProcessImportExport(models.TransientModel):
         self.is_hide_execute_button = False
         from_date = fields.Datetime.now() - timedelta(days=1)
         if self.woo_instance_id:
+            # Attach WooCommerce Operations Videos
+            self.set_video_based_on_operation()
+
             if self.woo_instance_id.last_order_import_date and self.woo_operation == 'import_unshipped_orders':
                 self.orders_after_date = self.woo_instance_id.last_order_import_date
             elif self.woo_instance_id.last_completed_order_import_date and \
@@ -132,6 +144,33 @@ class WooProcessImportExport(models.TransientModel):
         if self.woo_operation == 'export_stock':
             self.woo_check_running_schedulers('ir_cron_update_woo_stock_instance_')
         self.orders_before_date = fields.Datetime.now()
+
+    def set_video_based_on_operation(self):
+        """
+        This method is used to set video link based on operation
+        @author: Meera Sidapara @Emipro Technologies Pvt. Ltd on date 22 June 2022.
+        Task_id: 193396 - Add video link while perform operation
+        """
+        if self.woo_operation in ['import_product', 'import_product_from_csv']:
+            self.woo_video_url = 'https://www.youtube.com/watch?v=QYLiYrBKVQ4&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=2'
+
+        if self.woo_operation == 'import_customer':
+            self.woo_video_url = 'https://www.youtube.com/watch?v=2TtqPNmtKYM&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=16'
+
+        if self.woo_operation == 'import_unshipped_orders':
+            self.woo_video_url = 'https://www.youtube.com/watch?v=h53fY6A3QRI&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=6'
+
+        if self.woo_operation == 'import_completed_orders':
+            self.woo_video_url = 'https://www.youtube.com/watch?v=ZeJVWxDxaPE&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=8'
+
+        if self.woo_operation == 'is_update_order_status':
+            self.woo_video_url = 'https://www.youtube.com/watch?v=CAtfQtFurUM&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=7'
+
+        if self.woo_operation == 'import_stock':
+            self.woo_video_url = 'https://www.youtube.com/watch?v=inT-bUKRS9U&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=12'
+
+        if self.woo_operation == 'export_stock':
+            self.woo_video_url = 'https://www.youtube.com/watch?v=gNkT9NNW9RE&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=11'
 
     def execute(self):
         """
@@ -322,6 +361,8 @@ class WooProcessImportExport(models.TransientModel):
             res_products, log_lines = self.request_for_import_stock(sku_chunk, instance, product_fields, model_id,
                                                                     common_log_line_obj, log_lines)
             for res_product in res_products:
+                if isinstance(res_product, str):
+                    continue
                 products_stock, duplicate_woo_product, log_lines = self.prepare_data_for_inventory_adjustment(
                     woo_products, res_product, duplicate_woo_product, products_stock, common_log_line_obj, model_id,
                     log_lines)

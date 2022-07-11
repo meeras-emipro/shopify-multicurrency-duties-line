@@ -37,7 +37,7 @@ class ResPartner(models.Model):
                                                       ("shopify_instance_id", "=", instance.id)],
                                                      limit=1)
 
-        partner_vals = shopify_partner_obj.shopify_prepare_partner_vals(address)
+        partner_vals = shopify_partner_obj.shopify_prepare_partner_vals(address, instance)
         partner_vals = self.update_name_in_partner_vals(partner_vals, first_name, last_name, email, phone)
         if shopify_partner:
             parent_id = shopify_partner.partner_id.id
@@ -108,3 +108,12 @@ class ResPartner(models.Model):
             res_partner = res_partner.parent_id
 
         return res_partner
+
+    def create_or_search_tag(self, tag):
+        res_partner_category_obj = self.env['res.partner.category']
+
+        exists_tag = res_partner_category_obj.search([('name', '=ilike', tag)], limit=1)
+
+        if not exists_tag:
+            exists_tag = res_partner_category_obj.sudo().create({'name': tag})
+        return exists_tag.id

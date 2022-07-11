@@ -25,17 +25,28 @@
                                readonly="context.get('is_already_instance_created', False)"/>
                     </group>
                 </group>
-                <group class="o_onboard_padding">
-                    <group class="woo_consumer_secret_alignment">
-                        <field name='woo_consumer_key' required="1"
-                               readonly="context.get('is_already_instance_created', False)"/>
-                        <field name='woo_consumer_secret' required="1"
-                               readonly="context.get('is_already_instance_created', False)"/>
-                        <field name='woo_verify_ssl'
-                               readonly="context.get('is_already_instance_created', False)"
-                               class="o_onboard_boolean_toggle" widget="boolean_toggle"/>
-                    </group>
-                </group>
+                <div class='row o_onboard_padding'>
+                    <div class='col-md-6'>
+                        <group class="woo_consumer_secret_alignment">
+                            <field name="woo_consumer_key" required="1"
+                                   readonly="context.get('is_already_instance_created', False)"/>
+                            <field name="woo_consumer_secret" required="1"
+                                   readonly="context.get('is_already_instance_created', False)"/>
+                            <field name="woo_verify_ssl" readonly="context.get('is_already_instance_created', False)"
+                                   class="o_onboard_boolean_toggle" widget="boolean_toggle"/>
+                        </group>
+                    </div>
+                    <div class='col-md-6'>
+                        <style>
+                            .embed-responsive-item {
+                            width: -webkit-fill-available;
+                            height: 200px !important;
+                            }
+                        </style>
+                        <field name="woo_instance_video_url" string="WooCommerce Instance Video" invisible="1"/>
+                        <field name="woo_instance_video_embed_code" string="WooCommerce Instance Video" nolable="1"/>
+                    </div>
+                </div>
                 <group class="o_onboard_padding"
                        invisible="context.get('is_already_instance_created', False)">
                     <group class="woo_is_export_update_images_alignment">

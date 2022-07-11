@@ -180,6 +180,11 @@
         <field name="model">woo.instance.ept</field>
         <field name="arch" type="xml">
             <form string="Woo Instance" create="false" duplicate="0">
+                <header>
+                    <button name="sync_shipping_method_payment_gateway" class="oe_highlight"
+                            groups="woo_commerce_ept.group_woo_manager_ept" type="object"
+                            string="Sync Shipping Methods &amp; Payment Gateways"/>
+                </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <field name="active" invisible="True"/>

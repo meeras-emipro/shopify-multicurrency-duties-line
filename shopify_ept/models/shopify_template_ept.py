@@ -33,7 +33,7 @@ class ShopifyProductTemplateEpt(models.Model):
     _name = "shopify.product.template.ept"
     _description = "Shopify Product Template"
 
-    name = fields.Char()
+    name = fields.Char(translate=True)
     shopify_instance_id = fields.Many2one("shopify.instance.ept", "Instance")
     product_tmpl_id = fields.Many2one("product.template", "Product Template")
     shopify_tmpl_id = fields.Char("Shopify Template Id")
@@ -49,7 +49,7 @@ class ShopifyProductTemplateEpt(models.Model):
                                          default='unpublished', copy=False, string="Published ?")
     tag_ids = fields.Many2many("shopify.tags", "shopify_tags_rel", "product_tmpl_id", "tag_id",
                                "Tags")
-    description = fields.Html()
+    description = fields.Html(translate=True)
     total_variants_in_shopify = fields.Integer("Total Variants", default=0)
     total_sync_variants = fields.Integer("Total Synced Variants", compute="_compute_total_sync_variants",
                                          store=True)

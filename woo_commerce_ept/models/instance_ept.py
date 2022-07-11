@@ -172,6 +172,7 @@ class WooInstanceEpt(models.Model):
                                    help="Set the appropriate WooCommerce Version you are using currently or\nLogin "
                                         "into WooCommerce site,Go to Admin Panel >> Plugins")
     woo_pricelist_id = fields.Many2one('product.pricelist', string='Pricelist')
+    woo_extra_pricelist_id = fields.Many2one('product.pricelist', string='Extra Pricelist')
     woo_stock_field = fields.Many2one('ir.model.fields', string='Stock Field', default=_default_stock_field)
     woo_last_synced_order_date = fields.Datetime(string="Last Date of Import Order",
                                                  help="Which from date to import woo order from woo commerce")
@@ -267,7 +268,7 @@ class WooInstanceEpt(models.Model):
         @author: Meera Sidapara @Emipro Technologies Pvt. Ltd on date 12 May 2022.
         @Task: 189552 - Meta data sync
         """
-        _logger.info("Mapping Method Call========")
+        _logger.info("Mapping start of record(%s)------", record)
         if operation_type == "import":
             meta_vals_list = vals.get('meta_data')
             for meta_value in meta_vals_list:
@@ -827,6 +828,20 @@ class WooInstanceEpt(models.Model):
         payment_gateway_obj.search(domain).write(deactivate)
         data_queue_mixin_obj.delete_data_queue_ept(is_delete_queue=True)
 
+    def sync_shipping_method_payment_gateway(self):
+        """
+        This method used to sync shipping method and payment gateway.
+        @author: Meera Sidapara@Emipro Technologies Pvt. Ltd on date 18-04-2022.
+        @Task id: 187338 - Sync shipping method and payment method In Instance
+        """
+        payment_gateway_obj = self.env['woo.payment.gateway']
+        shipping_method_obj = self.env['woo.shipping.method']
+        if self.woo_version in ["wc/v2", "wc/v3"]:
+            payment_gateway_obj.woo_get_payment_gateway(self)
+            shipping_method_obj.woo_get_shipping_method(self)
+        self.prepare_payment_methods()
+        return True
+
     def woo_action_archive(self):
         """
         This method used to archive or unarchive instances and also disable the cron job of related instances while
@@ -883,11 +898,13 @@ class WooInstanceEpt(models.Model):
         instance = super(WooInstanceEpt, self).create(vals)
         instance.woo_set_current_currency_data()
         pricelist = instance.woo_create_pricelist()
+        extra_pricelist_id = instance.woo_create_sale_pricelist()
         sales_channel = instance.woo_create_sales_channel()
 
         instance.write({
             'woo_pricelist_id': pricelist.id,
             'sales_team_id': sales_channel.id,
+            'woo_extra_pricelist_id': extra_pricelist_id.id,
         })
 
         return instance
@@ -902,6 +919,20 @@ class WooInstanceEpt(models.Model):
         """
         vals = {
             'name': "Woo {} Pricelist".format(self.name),
+            'currency_id': self.woo_currency_id and self.woo_currency_id.id or False,
+            "company_id": self.company_id.id
+        }
+        return self.env['product.pricelist'].create(vals)
+
+    def woo_create_sale_pricelist(self):
+        """
+        Create sale price list for woocommerce instance
+        @return: pricelist
+        @author: Meera Sidapara @Emipro Technologies Pvt. Ltd on date 12-05-2022.
+        @Task id: 189553 - Sync sale price
+        """
+        vals = {
+            'name': "Woo {} Sale Pricelist".format(self.name),
             'currency_id': self.woo_currency_id and self.woo_currency_id.id or False,
             "company_id": self.company_id.id
         }

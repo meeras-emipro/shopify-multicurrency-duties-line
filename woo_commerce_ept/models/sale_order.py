@@ -78,6 +78,7 @@ class SaleOrder(models.Model):
                                    ("cancelled", "Cancelled"), ("refunded", "Refunded")], copy=False, tracking=7)
     is_service_woo_order = fields.Boolean(default=False, help="It uses to identify that sale order contains all "
                                                               "products as service type.")
+    wc_order_reference = fields.Char("WC Order Reference")
 
     _sql_constraints = [('_woo_sale_order_unique_constraint', 'unique(woo_order_id,woo_instance_id,woo_order_number)',
                          "Woocommerce order must be unique")]
@@ -331,6 +332,20 @@ class SaleOrder(models.Model):
             "analytic_account_id": woo_instance.woo_analytic_account_id.id if woo_instance.woo_analytic_account_id else False,
         }
         return vals
+
+    def get_order_link(self):
+        """
+        This method is used to redirect Woocommerce order in WooCommerce Store.
+        @author: Meera Sidapara on Date 17-May-2022.
+        @Task: 189557 - WC order link
+        """
+        self.ensure_one()
+        order_link = "%s/wp-admin/post.php?post=%s&action=edit" % (self.woo_instance_id.woo_host, self.woo_order_id)
+        return {
+            'type': 'ir.actions.act_url',
+            'target': 'new',
+            'url': order_link,
+        }
 
     def prepare_woo_order_vals(self, order_data, woo_instance, partner, billing_partner, shipping_partner,
                                workflow_config):
@@ -966,7 +981,10 @@ class SaleOrder(models.Model):
         Migrated by Maulik Barad on Date 07-Oct-2021.
         """
         delivery_carrier_obj = self.env["delivery.carrier"]
+        shipping_method_obj = self.env['woo.shipping.method']
         carrier = delivery_carrier_obj.search([("woo_code", "=", delivery_method)], limit=1)
+        woo_shipping_method = shipping_method_obj.search([("name", "ilike", delivery_method)],
+                                                         limit=1)
         if not carrier:
             carrier = delivery_carrier_obj.search([("name", "=", delivery_method)], limit=1)
         if not carrier:
@@ -974,6 +992,7 @@ class SaleOrder(models.Model):
                                                    ("woo_code", "ilike", delivery_method)], limit=1)
         if not carrier:
             carrier = delivery_carrier_obj.create({"name": delivery_method, "woo_code": delivery_method,
+                                                   "woo_shipping_method_id": woo_shipping_method.id,
                                                    "fixed_price": shipping_line.get("total"),
                                                    "product_id": shipping_product_id.id})
         return carrier

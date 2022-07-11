@@ -206,8 +206,11 @@ class ResPartner(models.Model):
 
         first_name = customer_val.get("first_name")
         last_name = customer_val.get("last_name")
+        contact_email = customer_val.get('email', '')
         if not first_name and not last_name:
             return False
+        if contact_email:
+            parent_id = self.search_partner_by_email(contact_email)
         company_name = customer_val.get("company")
         partner_vals = self.woo_prepare_partner_vals(customer_val, instance)
         woo_partner_values = {'woo_customer_id': customer_id, 'woo_instance_id': instance.id}

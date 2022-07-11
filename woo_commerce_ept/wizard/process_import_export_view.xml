@@ -34,6 +34,13 @@
                                                 A Scheduled/Cron Job, running in background will start processing Queues
                                                 one by one.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/import-products.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -53,6 +60,13 @@
                                             <li>
                                                 A Scheduled/Cron Job, running in background will start processing Queues
                                                 one by one.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/import-customer.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -87,6 +101,13 @@
                                                 in
                                                 the configuration.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/import-orders/import-unshipped-order-manually.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -120,6 +141,13 @@
                                                 in
                                                 the configuration.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/import-orders/import-completed-order.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -149,6 +177,13 @@
                                                 The default value for 'To Date' will be current date
                                                 and time.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/import-orders/import-cancel-order.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -163,6 +198,13 @@
                                             <li>
                                                 The Update Order Shipping Status allows you to change the order status
                                                 as 'Completed' at Woocommerce store.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/import-orders/update-order-shipping-status.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -183,6 +225,13 @@
                                                 Import Product Tags allows you synchronize Woocommerce store's product
                                                 tags to Odoo.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/product-tags-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -198,6 +247,13 @@
                                                 Import attributes allows you synchronize Woocommerce store's attributes
                                                 to Odoo.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/import-product-attributes.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -212,6 +268,13 @@
                                             <li>
                                                 Import Categories allows you synchronize Woocommerce store's categories
                                                 to Odoo.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/product-categories-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -232,6 +295,13 @@
                                             <li>
                                                 A Scheduled/Cron Job, running in background will start processing Queues
                                                 one by one.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/coupons-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -264,6 +334,13 @@
                                                 transaction record manually to bring stock changes
                                                 effect.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/export-and-import-stock.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -291,6 +368,13 @@
                                                 If last execution details are not available, it will consider those
                                                 products whose stock is updated since last 30 days.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/export-and-import-stock.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -302,8 +386,17 @@
                                     </u>
                                     <b>
                                         <ol>
-                                            Update Tags allows you to update the synchronized tags from Odoo to
-                                            Woocommerce store.
+                                            <li>
+                                                Update Tags allows you to update the synchronized tags from Odoo to
+                                                Woocommerce store.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/product-tags-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -318,6 +411,13 @@
                                             <li>
                                                 Export Tags allows you to export the new tags from Odoo to Woocommerce
                                                 store.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/product-tags-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -334,6 +434,13 @@
                                                 Update Categories allows you to update the synchronized categories
                                                 from Odoo to Woocommerce store.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/product-categories-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -348,6 +455,13 @@
                                             <li>
                                                 Export Categories allows you to export the new categories from Odoo to
                                                 Woocommerce store.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/product-categories-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -364,6 +478,13 @@
                                                 Update Coupons allows you to update the synchronized coupons from Odoo
                                                 to Woocommerce store.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/coupons-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
@@ -378,6 +499,13 @@
                                             <li>
                                                 Export Coupons allows you to export the new Coupons from Odoo to
                                                 Woocommerce store.
+                                            </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/coupons-import-export-and-update.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
                                             </li>
                                         </ol>
                                     </b>
@@ -401,9 +529,26 @@
                                                 Method > Export
                                                 in CSV/XLSX file.
                                             </li>
+                                            <li>
+                                                For more details please check
+                                                <a href='https://docs.emiprotechnologies.com/odoo-woocommerce-connector/v15/catalog-management/export-products.html'
+                                                   target="_blank">
+                                                    User Guide
+                                                </a>
+                                            </li>
                                         </ol>
                                     </b>
                                 </p>
+                            </div>
+                            <div class='row' style="display: contents;"
+                                 attrs="{'invisible':[('woo_operation','not in',['import_customer','is_update_order_status'])]}">
+                                <style>
+                                    .embed-responsive-item {
+                                        width: -webkit-fill-available;
+                                        height: 240px !important;
+                                    }
+                                </style>
+                                <field name="woo_video_embed_code" string="WooCommerce Operation Video" nolable="1"/>
                             </div>
                             <div attrs="{'invisible':[('cron_process_notification','=',False)]}">
                                 <p colspan="2" class="alert alert-info" role="alert">
@@ -414,53 +559,54 @@
                             </div>
                         </div>
                     </group>
+
                     <notebook
                             attrs="{'invisible': [('woo_operation', 'not in', ['import_product','import_unshipped_orders','export_stock','import_completed_orders','import_cancel_orders','import_product_from_csv','import_stock'])]}">
                         <page string='Sync Option'>
-                            <group name='woo_sync_products'
-                                   attrs="{'invisible':[('woo_operation','!=','import_product')]}">
-                                <group>
-                                    <field name="products_after_date"
-                                           attrs="{'required':[('woo_operation','=','import_product')]}"/>
-                                    <field name="products_before_date"
-                                           attrs="{'required':[('woo_operation','=','import_product')]}"/>
-                                </group>
-                                <group>
-                                    <field name="import_products_method"
-                                           attrs="{'required':[('woo_operation','=','import_product')]}"/>
-                                    <field name="woo_skip_existing_product"/>
-                                </group>
-                            </group>
-                            <group name="woo_import_orders"
-                                   attrs="{'invisible':[('woo_operation','not in',['import_unshipped_orders','import_completed_orders','import_cancel_orders'])]}">
-                                <group>
-                                    <field name="orders_after_date"
-                                           attrs="{'required':[('woo_operation','in',['import_unshipped_orders','import_completed_orders','import_cancel_orders'])]}"
-                                           string="Date From"/>
-                                    <field name="orders_before_date"
-                                           attrs="{'required':[('woo_operation','in',['import_unshipped_orders','import_completed_orders','import_cancel_orders'])]}"
-                                           string="Date To"/>
-                                </group>
-                            </group>
-                            <group name="import_stock" attrs="{'invisible':[('woo_operation','!=','import_stock')]}">
-                                <group>
-                                    <field name="auto_apply_adjustments" widget="boolean_toggle"
-                                           string="Auto apply inventory adjustment"/>
-                                </group>
-                            </group>
-                            <group name="export_stock" attrs="{'invisible':[('woo_operation','!=','export_stock')]}">
-                                <group>
-                                    <field name="export_stock_from"
-                                           attrs="{'required':[('woo_operation','=','export_stock')]}"/>
-                                </group>
-                            </group>
-                            <group name="import_product_from_csv"
-                                   attrs="{'invisible':[('woo_operation','!=','import_product_from_csv')]}">
-                                <group>
-                                    <field name="choose_file" filename="file_name"
-                                           attrs="{'required':[('woo_operation','=','import_product_from_csv')]}"/>
-                                </group>
-                            </group>
+                            <div class="row">
+                                <div class='col-md-6'>
+                                    <group name='woo_sync_products'
+                                           attrs="{'invisible':[('woo_operation','!=','import_product')]}">
+                                        <field name="products_after_date"
+                                               attrs="{'required':[('woo_operation','=','import_product')]}"/>
+                                        <field name="products_before_date"
+                                               attrs="{'required':[('woo_operation','=','import_product')]}"/>
+                                        <field name="import_products_method"
+                                               attrs="{'required':[('woo_operation','=','import_product')]}"/>
+                                        <field name="woo_skip_existing_product"/>
+                                    </group>
+                                    <group name="woo_import_orders"
+                                           attrs="{'invisible':[('woo_operation','not in',['import_unshipped_orders','import_completed_orders','import_cancel_orders'])]}">
+                                        <field name="orders_after_date"
+                                               attrs="{'required':[('woo_operation','in',['import_unshipped_orders','import_completed_orders','import_cancel_orders'])]}"
+                                               string="Date From"/>
+                                        <field name="orders_before_date"
+                                               attrs="{'required':[('woo_operation','in',['import_unshipped_orders','import_completed_orders','import_cancel_orders'])]}"
+                                               string="Date To"/>
+                                    </group>
+                                    <group name="import_stock"
+                                           attrs="{'invisible':[('woo_operation','!=','import_stock')]}">
+                                        <field name="auto_apply_adjustments" widget="boolean_toggle"
+                                               string="Auto apply inventory adjustment"/>
+                                    </group>
+                                    <group name="export_stock"
+                                           attrs="{'invisible':[('woo_operation','!=','export_stock')]}">
+                                        <field name="export_stock_from"
+                                               attrs="{'required':[('woo_operation','=','export_stock')]}"/>
+                                    </group>
+                                    <group name="import_product_from_csv"
+                                           attrs="{'invisible':[('woo_operation','!=','import_product_from_csv')]}">
+                                        <field name="choose_file" filename="file_name"
+                                               attrs="{'required':[('woo_operation','=','import_product_from_csv')]}"/>
+                                    </group>
+                                </div>
+                                <div class='col-md-6'
+                                     attrs="{'invisible':[('woo_operation','=','import_cancel_orders')]}">
+                                    <field name="woo_video_embed_code" string="WooCommerce Operation Video"
+                                           nolable='1'/>
+                                </div>
+                            </div>
+
                         </page>
                     </notebook>
 
@@ -495,6 +641,10 @@
                             <li>
                                 You can set the username and password here => Woocommerce => Configuration => Instances
                                 => Set Credentials.
+                            </li>
+                            <li>
+                                If the Sale price is less than the Regular price, it will be exported. Otherwise, it
+                                will not export the sale price in the WooCommerce store.
                             </li>
                         </ol>
                     </p>

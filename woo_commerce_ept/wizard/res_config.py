@@ -5,6 +5,7 @@ import logging
 import requests
 from odoo import models, fields, api, _
 from odoo.addons.base.models.res_partner import _tz_get
+from odoo.addons.website.tools import get_video_embed_code
 from odoo.exceptions import UserError
 
 from .. import woocommerce
@@ -50,6 +51,16 @@ class WooInstanceConfig(models.TransientModel):
     woo_company_id = fields.Many2one("res.company", string="Woo Instance Company",
                                      help="Orders and Invoices will be generated of this company.")
 
+    woo_instance_video_url = fields.Char('Video URL',
+                                         default='https://www.youtube.com/watch?v=hctH0-SLwcA&list=PLZGehiXauylYm3npB78qUh0bPULqC-qo-&index=1',
+                                         help='URL of a video for showcasing by instance.')
+    woo_instance_video_embed_code = fields.Html(compute="_compute_woo_instance_video_embed_code", sanitize=False)
+
+    @api.depends('woo_instance_video_url')
+    def _compute_woo_instance_video_embed_code(self):
+        for image in self:
+            image.woo_instance_video_embed_code = get_video_embed_code(image.woo_instance_video_url)
+
     def woo_test_connection(self):
         """
         This method is used to check the connection between Odoo and Woocommerce store.
@@ -58,6 +69,7 @@ class WooInstanceConfig(models.TransientModel):
         """
         instance_obj = self.env['woo.instance.ept']
         payment_gateway_obj = self.env['woo.payment.gateway']
+        shipping_method_obj = self.env['woo.shipping.method']
         host = self.woo_host
         consumer_key = self.woo_consumer_key
         consumer_secret = self.woo_consumer_secret
@@ -75,6 +87,7 @@ class WooInstanceConfig(models.TransientModel):
 
         if instance.woo_version in ["wc/v2", "wc/v3"]:
             payment_gateway_obj.woo_get_payment_gateway(instance)
+            shipping_method_obj.woo_get_shipping_method(instance)
         instance.confirm()
 
         if self._context.get('is_calling_from_onboarding_panel', False):
@@ -234,6 +247,8 @@ class ResConfigSettings(models.TransientModel):
 
     woo_pricelist_id = fields.Many2one('product.pricelist', string='Woo Instance Pricelist',
                                        help="Product Price will be stored in this pricelist in Odoo.")
+    woo_extra_pricelist_id = fields.Many2one('product.pricelist', string='Extra Pricelist',
+                                             help="Product Sale Price will be stored in this pricelist in Odoo.")
     woo_payment_term_id = fields.Many2one('account.payment.term', string='Woo Instance Payment Term',
                                           help="Select the condition of payment for invoice.")
     woo_auto_import_product = fields.Boolean(
@@ -355,6 +370,7 @@ class ResConfigSettings(models.TransientModel):
             self.woo_stock_field = instance.woo_stock_field.id if instance.woo_stock_field else False
             self.woo_warehouse_id = instance.woo_warehouse_id.id if instance.woo_warehouse_id else False
             self.woo_pricelist_id = instance.woo_pricelist_id.id if instance.woo_pricelist_id else False
+            self.woo_extra_pricelist_id = instance.woo_extra_pricelist_id.id if instance.woo_extra_pricelist_id else False
             self.woo_payment_term_id = instance.woo_payment_term_id.id if instance.woo_payment_term_id else False
             self.woo_auto_import_product = instance.auto_import_product
             self.woo_sync_price_with_product = instance.sync_price_with_product or False
@@ -403,6 +419,7 @@ class ResConfigSettings(models.TransientModel):
             values['woo_stock_field'] = self.woo_stock_field.id if self.woo_stock_field else False
             values['woo_warehouse_id'] = self.woo_warehouse_id.id if self.woo_warehouse_id else False
             values['woo_pricelist_id'] = self.woo_pricelist_id.id if self.woo_pricelist_id else False
+            values['woo_extra_pricelist_id'] = self.woo_extra_pricelist_id if self.woo_pricelist_id else False
             values[
                 'woo_payment_term_id'] = self.woo_payment_term_id.id if self.woo_payment_term_id else False
             values['sync_price_with_product'] = self.woo_sync_price_with_product or False

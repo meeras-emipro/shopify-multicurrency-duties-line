@@ -67,7 +67,7 @@ class PrepareProductForExport(models.TransientModel):
                 continue
             product_template = variant.product_tmpl_id
             if product_template.attribute_line_ids and len(product_template.attribute_line_ids.filtered(
-                lambda x: x.attribute_id.create_variant == "always")) > 3:
+                    lambda x: x.attribute_id.create_variant == "always")) > 3:
                 continue
             shopify_template, sequence, shopify_template_id = self.create_or_update_shopify_layer_template(
                 shopify_instance, product_template, variant, shopify_template_id, sequence)
@@ -75,7 +75,7 @@ class PrepareProductForExport(models.TransientModel):
             self.create_shopify_template_images(shopify_template)
 
             if shopify_template and shopify_template.shopify_product_ids and \
-                shopify_template.shopify_product_ids[0].sequence:
+                    shopify_template.shopify_product_ids[0].sequence:
                 sequence += 1
 
             shopify_variant = self.create_or_update_shopify_layer_variant(variant, shopify_template_id,
@@ -126,12 +126,20 @@ class PrepareProductForExport(models.TransientModel):
             Task_id: 167537 - Code refactoring
         """
         ir_config_parameter_obj = self.env["ir.config_parameter"]
+        # template_vals = {"product_tmpl_id": product_template.id,
+        #                  "shopify_instance_id": shopify_instance.id,
+        #                  "shopify_product_category": product_template.categ_id.id,
+        #                  "name": product_template.name}
+        # if ir_config_parameter_obj.sudo().get_param("shopify_ept.set_sales_description"):
+        #     template_vals.update({"description": variant.description_sale})
+        name = product_template.with_context(lang=shopify_instance.shopify_lang_id.code).name
         template_vals = {"product_tmpl_id": product_template.id,
                          "shopify_instance_id": shopify_instance.id,
                          "shopify_product_category": product_template.categ_id.id,
-                         "name": product_template.name}
+                         "name": name}
         if ir_config_parameter_obj.sudo().get_param("shopify_ept.set_sales_description"):
-            template_vals.update({"description": variant.description_sale})
+            description = variant.with_context(lang=shopify_instance.shopify_lang_id.code).description_sale
+            template_vals.update({"description": description})
         return template_vals
 
     def prepare_variant_val_for_export_product_in_layer(self, shopify_instance, shopify_template, variant, sequence):
@@ -183,7 +191,7 @@ class PrepareProductForExport(models.TransientModel):
         product_data_list = []
         for template in product_templates:
             if template.attribute_line_ids and len(
-                template.attribute_line_ids.filtered(lambda x: x.attribute_id.create_variant == "always")) > 3:
+                    template.attribute_line_ids.filtered(lambda x: x.attribute_id.create_variant == "always")) > 3:
                 continue
             if len(template.product_variant_ids.ids) == 1 and not template.default_code:
                 continue

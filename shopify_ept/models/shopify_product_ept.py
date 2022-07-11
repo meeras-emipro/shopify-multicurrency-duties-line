@@ -295,22 +295,28 @@ class ShopifyProductProductEpt(models.Model):
 
     def prepare_export_update_product_attribute_vals(self, template, new_product):
         """This method is used to set product attribute vals while export/update products from Odoo to Shopify store.
+        @change : pass lang_id on context by Nilam Kubavat for task id : 190111 at 19/05/2022
         """
         if len(template.shopify_product_ids) > 1:
             attribute_list = []
             attribute_position = 1
             product_attribute_line_obj = self.env["product.template.attribute.line"]
+            instance = template.shopify_instance_id
             product_attribute_lines = product_attribute_line_obj.search(
-                [("id", "in", template.product_tmpl_id.attribute_line_ids.ids)], order="attribute_id")
+                [("id", "in",
+                  template.with_context(lang=instance.shopify_lang_id.code).product_tmpl_id.attribute_line_ids.ids)],
+                order="attribute_id")
+
             for attribute_line in product_attribute_lines.filtered(lambda x: x.attribute_id.create_variant == "always"):
                 info = {}
                 attribute = attribute_line.attribute_id
                 value_names = []
                 for value in attribute_line.value_ids:
-                    value_names.append(value.name)
+                    value_names.append(value.with_context(lang=instance.shopify_lang_id.code).name)
 
-                info.update({"name": attribute.name, "values": value_names,
-                             "position": attribute_position})
+                info.update(
+                    {"name": attribute.with_context(lang=instance.shopify_lang_id.code).name, "values": value_names,
+                     "position": attribute_position})
                 attribute_list.append(info)
                 attribute_position = attribute_position + 1
             new_product.options = attribute_list
@@ -336,6 +342,9 @@ class ShopifyProductProductEpt(models.Model):
         instance.connect_in_shopify()
         log_book_id = common_log_obj.shopify_create_common_log_book("export", instance, model_id)
 
+        shopify_templates = self.check_available_products_in_shopify(templates)
+        if shopify_templates:
+            templates = shopify_templates
         for template in templates:
             new_product = self.request_for_shopify_template(template, model_id, log_book_id)
             if not new_product:
@@ -358,6 +367,23 @@ class ShopifyProductProductEpt(models.Model):
             log_book_id.unlink()
 
         return True
+
+    def check_available_products_in_shopify(self, templates):
+        """
+        This method is used to check product is available in shopify store.
+        @param templates: Record of shopify templates.
+        @author: Meera Sidapara @Emipro Technologies Pvt. Ltd on date 01/06/2022.
+        """
+        shopify_template_ids = templates.mapped('shopify_tmpl_id')
+        results = shopify.Product().find(ids=",".join(shopify_template_ids))
+        if len(shopify_template_ids) == len(results):
+            return templates
+        available_product_ids = [str(result.id) for result in results]
+        shopify_templates = templates.filtered(lambda template: template.shopify_tmpl_id in available_product_ids)
+        layer_templates = templates.filtered(lambda template: template.shopify_tmpl_id not in available_product_ids)
+        if layer_templates:
+            layer_templates.unlink()
+        return shopify_templates
 
     def request_for_shopify_template(self, template, model_id, log_book_id):
         """ This method is used to request for the shopify product from Odoo to Shopify store.
@@ -389,6 +415,7 @@ class ShopifyProductProductEpt(models.Model):
         :param is_publish: if true then publish product in shop[ify store
         :param is_set_basic_detail: if true then set the basic detail in shopify product
         @author: Nilesh Parmar @Emipro Technologies Pvt. Ltd on date 15/11/2019.
+        @change : pass lang_id on context by Nilam Kubavat for task id : 190111 at 19/05/2022
         """
         published_at = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
         if is_publish == "unpublish_product":
@@ -401,16 +428,19 @@ class ShopifyProductProductEpt(models.Model):
             new_product.published_scope = "web"
             new_product.published_at = published_at
 
+        instance = template.shopify_instance_id
         if is_set_basic_detail:
             if template.description:
-                new_product.body_html = template.description
+                # new_product.body_html = template.description
+                new_product.body_html = template.with_context(lang=instance.shopify_lang_id.code).description
             if template.product_tmpl_id.seller_ids:
                 new_product.vendor = template.product_tmpl_id.seller_ids[0].display_name
             new_product.product_type = template.shopify_product_category.name
             new_product.tags = [tag.name for tag in template.tag_ids]
             if template.template_suffix:
                 new_product.template_suffix = template.template_suffix
-            new_product.title = template.name
+            # new_product.title = template.name
+            new_product.title = template.with_context(lang=instance.shopify_lang_id.code).name
 
         return True
 
@@ -429,7 +459,7 @@ class ShopifyProductProductEpt(models.Model):
                                                                     uom_id=variant.product_id.uom_id.id)
             variant_vals.update({"price": float(price)})
         if is_set_basic_detail:
-            variant_vals = self.prepare_vals_for_product_basic_details(variant_vals, variant)
+            variant_vals = self.prepare_vals_for_product_basic_details(variant_vals, variant, instance)
 
         if variant.inventory_management == "shopify":
             variant_vals.update({"inventory_management": "shopify"})
@@ -443,7 +473,7 @@ class ShopifyProductProductEpt(models.Model):
 
         return variant_vals
 
-    def prepare_vals_for_product_basic_details(self, variant_vals, variant):
+    def prepare_vals_for_product_basic_details(self, variant_vals, variant, instance):
         """ This method is used to prepare a vals for the product basic details.
             @author: Haresh Mori @Emipro Technologies Pvt. Ltd on date 21 October 2020 .
             Task_id: 167537
@@ -454,7 +484,7 @@ class ShopifyProductProductEpt(models.Model):
                              "weight_unit": "kg",
                              "requires_shipping": "true", "sku": variant.default_code,
                              "taxable": variant.taxable and "true" or "false",
-                             "title": variant.name,
+                             "title": variant.with_context(lang=instance.shopify_lang_id.code).name,
                              })
         option_index = 0
         option_index_value = ["option1", "option2", "option3"]
@@ -465,7 +495,8 @@ class ShopifyProductProductEpt(models.Model):
         for att_value in att_values:
             if option_index > 3:
                 continue
-            variant_vals.update({option_index_value[option_index]: att_value.name})
+            variant_vals.update(
+                {option_index_value[option_index]: att_value.with_context(lang=instance.shopify_lang_id.code).name})
             option_index = option_index + 1
 
         return variant_vals
@@ -646,6 +677,10 @@ class ShopifyProductProductEpt(models.Model):
             message = "Location not found for instance %s while update stock" % instance.name
             log_line_array = self.shopify_create_log(message, model_id, False, log_line_array)
 
+        shopify_templates = self.check_available_products_in_shopify(shopify_products.mapped('shopify_template_id'))
+        if shopify_templates:
+            shopify_products = shopify_templates.shopify_product_ids
+
         for location_id in location_ids:
             shopify_location_warehouse = location_id.export_stock_warehouse_ids or False
             if not shopify_location_warehouse:
@@ -692,10 +727,11 @@ class ShopifyProductProductEpt(models.Model):
                     except ResourceNotFound as error:
                         if hasattr(error, "response"):
                             message = "Error while Export stock for Product ID: %s & Product Name: '%s' for instance:" \
-                                      "'%s'not found in Shopify store\nError: %s\n%s" % (odoo_product.id, odoo_product.name, instance.name,
-                                                               str(error.response.code) + " " + error.response.msg,
-                                                               json.loads(error.response.body.decode()).get("errors")[0]
-                                                               )
+                                      "'%s'not found in Shopify store\nError: %s\n%s" % (
+                                          odoo_product.id, odoo_product.name, instance.name,
+                                          str(error.response.code) + " " + error.response.msg,
+                                          json.loads(error.response.body.decode()).get("errors")[0]
+                                      )
                             log_line_array = self.shopify_create_log(message, model_id, odoo_product, log_line_array)
                     except Exception as error:
                         message = "Error while Export stock for Product ID: %s & Product Name: '%s' for instance: " \

@@ -374,9 +374,13 @@ class PrepareProductForExport(models.TransientModel):
                 [("woo_template_id", "=", woo_template.id),
                  ("odoo_image_id", "=", odoo_image.id)])
             if woo_product_image:
+                if isinstance(odoo_image.image, bool):
+                    continue
                 mimetype = guess_mimetype(base64.b64decode(woo_product_image.image))
                 woo_product_image.write({'image_mime_type': mimetype})
             if not woo_product_image:
+                if isinstance(odoo_image.image, bool):
+                    continue
                 mimetype = guess_mimetype(base64.b64decode(odoo_image.image))
                 woo_product_image_list.append({
                     "odoo_image_id": odoo_image.id,

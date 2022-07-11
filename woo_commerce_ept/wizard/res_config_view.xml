@@ -23,15 +23,27 @@
                                readonly="context.get('is_already_instance_created', False)"/>
                     </group>
                 </group>
-                <group>
-                    <group>
-                        <field name='woo_consumer_key' required="1"
-                               readonly="context.get('is_already_instance_created', False)"/>
-                        <field name='woo_consumer_secret' required="1"
-                               readonly="context.get('is_already_instance_created', False)"/>
-                        <field name='woo_verify_ssl' readonly="context.get('is_already_instance_created', False)"/>
-                    </group>
-                </group>
+                <div class='row'>
+                    <div class='col-md-6'>
+                        <group>
+                            <field name="woo_consumer_key" required="1"
+                                   readonly="context.get('is_already_instance_created', False)"/>
+                            <field name="woo_consumer_secret" required="1"
+                                   readonly="context.get('is_already_instance_created', False)"/>
+                            <field name="woo_verify_ssl" readonly="context.get('is_already_instance_created', False)"/>
+                        </group>
+                    </div>
+                    <div class='col-md-6' style="display: contents;">
+                        <style>
+                            .embed-responsive-item {
+                            width: 423px;
+                            height: 200px !important;
+                            }
+                        </style>
+                        <field name="woo_instance_video_url" string="WooCommerce Instance Video" invisible="1"/>
+                        <field name="woo_instance_video_embed_code" string="WooCommerce Instance Video" nolable="1"/>
+                    </div>
+                </div>
                 <group>
                     <field name='is_export_update_images' widget="boolean_toggle"
                            readonly="context.get('is_already_instance_created', False)"/>
@@ -436,6 +448,22 @@
                                                 <field name="woo_weight_uom_id"
                                                        attrs="{'required':[('woo_instance_id','!=',False)]}"
                                                        options="{'no_open':True,'no_create':True,'no_create_edit':True}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6 o_setting_box">
+                                    <div class="o_setting_left_pane"/>
+                                    <div class="o_setting_right_pane">
+                                        <span class="o_form_label">WooCommerce Instance Extra Pricelist</span>
+                                        <div class="text-muted">
+                                            1.During product sync operation,sale price will be Imported/Exported using
+                                            this Pricelist.
+                                        </div>
+                                        <div class="content-group">
+                                            <div class="mt16">
+                                                <field name="woo_extra_pricelist_id" options="{'no_create': True}"/>
                                             </div>
                                         </div>
                                     </div>

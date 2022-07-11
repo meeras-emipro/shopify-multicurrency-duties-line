@@ -2,7 +2,7 @@
 # See LICENSE file for full copyright and licensing details.
 {
     'name': 'Odoo WooCommerce Connector',
-    'version': '15.0.4.0.1',
+    'version': '15.0.7.0.1',
     'license': 'OPL-1',
     'category': 'Sales',
     'summary': 'Odoo Woocommerce Connector helps you automate your vital business processes at Odoo by enabling bi-directional data exchange between WooCommerce & Odoo.Apart from Odoo Woocommerce Connector, we do have other ecommerce solutions or applications such as Magento connector , Shopify connector , and also we have solutions for Marketplace Integration such as Odoo Amazon connector , Odoo eBay Connector , Odoo Walmart Connector , Odoo Bol.com Connector.Aside from ecommerce integration and ecommerce marketplace integration, we also provide solutions for various operations, such as shipping , logistics , shipping labels , and shipping carrier management with our shipping integration , known as the Shipstation connector.For the customers who are into Dropship business, we do provide EDI Integration that can help them manage their Dropshipping business with our Dropshipping integration or Dropshipper integration It is listed as Dropshipping EDI integration and Dropshipper EDI integration.Emipro applications can be searched with different keywords like Amazon integration , Shopify integration , Woocommerce integration, Magento integration , Amazon vendor center module , Amazon seller center module , Inter company transfer , Ebay integration , Bol.com integration , inventory management , warehouse transfer module , dropship and dropshipper integration and other Odoo integration application or module',
@@ -53,6 +53,8 @@
         'views/coupons_ept.xml',
         'views/coupon_data_queue_ept.xml',
         'views/coupon_data_queue_line_ept.xml',
+        'views/delivery_carrier_view.xml',
+        'views/shipping_method.xml',
         'wizard/prepare_product_for_export.xml',
         'report/sale_report.xml',
         'wizard/instance_configuration_wizard.xml',

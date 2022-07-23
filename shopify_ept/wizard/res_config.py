@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
 import os
+import logging
 import zipfile
+import base64
+from io import BytesIO
 from odoo import models, fields, api, _, SUPERUSER_ID
 from odoo.exceptions import UserError
 from odoo.addons.website.tools import get_video_embed_code
 from .. import shopify
+
+_logger = logging.getLogger("Shopify Settings")
 
 
 class ShopifyInstanceConfig(models.TransientModel):
@@ -308,8 +313,8 @@ class ResConfigSettings(models.TransientModel):
     # presentment currency
     order_visible_currency = fields.Boolean(string="Import order in customer visible currency?")
 
-    # group_show_net_profit_report = fields.Boolean(string='Net Profit Report',
-    #                                               implied_group='shopify_ept.group_visible_net_profit_report')
+    group_show_net_profit_report = fields.Boolean(string='Net Profit Report',
+                                                  implied_group='shopify_ept.group_visible_net_profit_report')
 
     @api.onchange("shopify_instance_id")
     def onchange_shopify_instance_id(self):
@@ -428,19 +433,19 @@ class ResConfigSettings(models.TransientModel):
         """Install net profit report module if enable configuration.
             @author: Meera Sidapara @Emipro Technologies Pvt. Ltd on date 01/07/2022.
         """
+        self.ensure_one()
+        _logger.info('Path ===========Path============= %s', os.path.realpath(
+            os.path.join(os.path.dirname(__file__), '../data/shopify_net_profit_report_ept.zip')))
         path = os.path.realpath(
             os.path.join(os.path.dirname(__file__), '../data/shopify_net_profit_report_ept.zip'))
-        extract_path = os.path.realpath(os.path.join(os.path.dirname(__file__), '../../'))
-        if not os.path.exists(extract_path + '/shopify_net_profit_report_ept'):
-            with zipfile.ZipFile(path, 'r') as zip_ref:
-                zip_ref.extractall(extract_path)
-        self.env['ir.module.module'].update_list()
-        module = self.env['ir.module.module'].search([
-            ('name', '=', 'shopify_net_profit_report_ept'),
-            ('state', '=', 'uninstalled')
-        ])
+        _logger.info('Path ===========Path============= %s', path)
+        IrModule = self.env['ir.module.module']
+        module = IrModule.search([('name', '=', 'account_accountant'), ('state', '=', 'uninstalled')])
+        _logger.info('module =======Module================= %s', module)
         if module:
             module.with_user(SUPERUSER_ID).button_immediate_install()
+        res = IrModule.import_zipfile(path, force=True)
+        _logger.info('res =======RES================= %s', res)
         action = self.env.ref('shopify_ept.action_shopify_config', False)
         res = action and action.read()[0] or {}
         res['context'] = {'default_shopify_instance_id': self.shopify_instance_id.id,
